@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    environment {
+        REPO_URL = 'https://github.com/theerapongsrisattha1998/TTB_Automation_Theeraphong.git'
+        WEB_TESTS = 'TTB_Automation_Test/Assignment_2/Login.cy.js'
+        API_TESTS = 'TTB_Automation_Test/Assignment_3/API_GET_Req.js'
+        WEB_RESULTS = 'TTB_Automation_Test\Assignment_5/Results/Assignment_2'
+        API_RESULTS = 'TTB_Automation_Test\Assignment_5/Results/Assignment_3'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git url: "${REPO_URL}", branch: 'main', credentialsId: 'github-test-token'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo "Installing Node.js dependencies..."
+                bat "npm install"
+            }
+        }
+
+        stage('Run Tests in Parallel') {
+            parallel {
+                stage('Run Cypress Web Tests') {
+                    steps {
+                        echo "Running Cypress Web Tests..."
+                        bat "npx cypress run --spec ${WEB_TESTS} --browser chrome"
+                    }
+                }
+                stage('Run API Tests (Mocha)') {
+                    steps {
+                        echo "Running API Tests with Mocha..."
+                        bat "npx mocha ${API_TESTS} --reporter spec"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'results/**/*', allowEmptyArchive: true
+            echo "Pipeline completed"
+        }
+        success {
+            echo "Tests Passed!"
+        }
+        failure {
+            echo "Tests Failed!"
+        }
+    }
+}
+

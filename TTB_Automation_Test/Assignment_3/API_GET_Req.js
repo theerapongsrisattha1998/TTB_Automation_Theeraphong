@@ -1,5 +1,5 @@
 // API_GET_Request
-
+require('dotenv').config();
 const axios = require('axios');
 const { expect } = require('chai');
 
@@ -7,7 +7,7 @@ describe('ReqRes API Automation Test', () => {
     const BASE_URL = 'https://reqres.in/api';
     const USER_ID = 12;
     const NOT_FOUND_ID = 1234;
-    const API_KEY = 'reqres_08e5169911f643a693339770b8d658f7'; 
+    const API_KEY = process.env.API_KEY;
 
     // ตัวอย่าง header 
     const headers = {
